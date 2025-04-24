@@ -401,11 +401,11 @@ int main() {
 
 
 	cudaEventDestroy(start_transaction1);
-	cudaEventDestroy(stop_transaction1);
+	cudaEventDestroy(stop_transaction1 );
 	cudaEventDestroy(start_transaction2);
-	cudaEventDestroy(stop_transaction2);
-	cudaEventDestroy(start_calculation);
-	cudaEventDestroy(stop_calculation);
+	cudaEventDestroy(stop_transaction2 );
+	cudaEventDestroy(start_calculation );
+	cudaEventDestroy(stop_calculation  );
 
 	cudaFree(values_cu);
 	cudaFree(col_indices_cu);
