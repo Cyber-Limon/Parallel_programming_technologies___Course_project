@@ -263,7 +263,7 @@ int main() {
 
 	// Сохранение вектора //
 
-	save_vector("Sharigin_MS___Serena___Without_cuSPARSE.mtx.mtx", res, M);
+	save_vector("Sharigin_MS___Serena___Without_cuSPARSE.mtx", res, M);
 
 
 
