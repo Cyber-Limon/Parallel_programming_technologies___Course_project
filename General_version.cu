@@ -116,7 +116,7 @@ int main() {
 		row_ptr[i + 1] += row_ptr[i];
 	
 	if (row_ptr[M] != count_0) {
-		cout << "Error in filling row_ptr" << endl;
+		cerr << "Error in filling row_ptr" << endl;
 		return 1;
 	}
 
