@@ -1,4 +1,4 @@
-#define block_size 1024
+#define block_size 256
 #include <iostream>
 #include <fstream>
 #include <vector>
