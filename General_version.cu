@@ -54,9 +54,8 @@ void save_vector(const string& filename, const double* vec, int size) {
 	file << "%%MatrixMarket matrix array real general\n";
 	file << size << " 1\n"; 
 
-	for (int i = 0; i < size; ++i) {
+	for (int i = 0; i < size; ++i) 
 		file << vec[i] << "\n";  
-	}
 
 	file.close();
 	cout << "Vector saved to " << filename << endl;
