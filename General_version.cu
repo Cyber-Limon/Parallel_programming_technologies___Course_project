@@ -1,4 +1,4 @@
-﻿#define block_size 1024
+#define block_size 1024
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -66,7 +66,7 @@ void save_vector(const string& filename, const double* vec, int size) {
 int main() {
 
 	// Считывание матрицы //
-
+	
 	const string fpath = "Serena.mtx";
 
 	int M   = 0;
@@ -76,7 +76,7 @@ int main() {
 	int    *I;
 	int    *J;
 	double *val;
-
+	
 	int rcode = mm_read_unsymmetric_sparse(fpath.c_str(), &M, &N, &nnz, &val, &I, &J);
 	cout << "M = " << M << " N = " << N << " nnz = " << nnz << endl;
 
@@ -92,7 +92,7 @@ int main() {
 	for (int i = 0; i < nnz; i++)
 		if (val[i] != 0)
 			count_0++;
-
+	
 
 
 	// Перевод матрицы из формата "COO" в "CSR" // 
@@ -110,10 +110,10 @@ int main() {
 			count++;
 		}
 	}
-
-	for (int i = 0; i < M; i++)
-		row_ptr[i + 1] += row_ptr[i];
 	
+	for (int i = 0; i < M; i++) 
+		row_ptr[i + 1] += row_ptr[i];
+
 	if (row_ptr[M] != count_0) {
 		cerr << "Error in filling row_ptr" << endl;
 		return 1;
@@ -291,11 +291,11 @@ int main() {
 
 	// Дескрипторы матрицы и векторов (единичного и результирующего) //
 
-	cusparseSpMatDescr_t matA;
-	cusparseDnVecDescr_t vecX, vecY;
+	cusparseSpMatDescr_t mat;
+	cusparseDnVecDescr_t vec_vec, vec_res;
 		
 	cusparseCreateCsr(
-		&matA,                     
+		&mat,                     
 		M, N, nnz,                 
 		row_ptr_cu,                
 		col_indices_cu,            
@@ -306,8 +306,8 @@ int main() {
 		CUDA_R_64F                 
 	);
 	
-	cusparseCreateDnVec(&vecX, N, vec_cu, CUDA_R_64F);  
-	cusparseCreateDnVec(&vecY, M, res_cu, CUDA_R_64F);  
+	cusparseCreateDnVec(&vec_vec, N, vec_cu, CUDA_R_64F);
+	cusparseCreateDnVec(&vec_res, M, res_cu, CUDA_R_64F);
 
 
 
@@ -331,7 +331,7 @@ int main() {
 
 	cusparseSpMV_bufferSize(
 		handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-		&alpha, matA, vecX, &beta, vecY, CUDA_R_64F, alg, &bufferSize
+		&alpha, mat, vec_vec, &beta, vec_res, CUDA_R_64F, alg, &bufferSize
 	);
 
 	cudaMalloc(&dBuffer, bufferSize);
@@ -343,7 +343,7 @@ int main() {
 	cudaEventRecord(start_calculation_SP, 0);
 	cusparseSpMV(
 		handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-		&alpha, matA, vecX, &beta, vecY, CUDA_R_64F, alg, dBuffer
+		&alpha, mat, vec_vec, &beta, vec_res, CUDA_R_64F, alg, dBuffer
 	);
 	cudaEventRecord(stop_calculation_SP,  0);
 
@@ -418,9 +418,9 @@ int main() {
 
 	cusparseDestroy(handle);
 
-	cusparseDestroySpMat(matA);
-	cusparseDestroyDnVec(vecX);
-	cusparseDestroyDnVec(vecY);
+	cusparseDestroySpMat(mat);
+	cusparseDestroyDnVec(vec_vec);
+	cusparseDestroyDnVec(vec_res);
 	
 	if (dBuffer) cudaFree(dBuffer);
 	
