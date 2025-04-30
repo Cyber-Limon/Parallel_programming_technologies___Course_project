@@ -327,14 +327,14 @@ int main() {
 	// Буфер //
 
 	size_t bufferSize = 0;
-	void* dBuffer = nullptr;
+	void* Buffer = nullptr;
 
 	cusparseSpMV_bufferSize(
 		handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
 		&alpha, mat, vec_vec, &beta, vec_res, CUDA_R_64F, alg, &bufferSize
 	);
 
-	cudaMalloc(&dBuffer, bufferSize);
+	cudaMalloc(&Buffer, bufferSize);
 
 
 
@@ -343,7 +343,7 @@ int main() {
 	cudaEventRecord(start_calculation_SP, 0);
 	cusparseSpMV(
 		handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-		&alpha, mat, vec_vec, &beta, vec_res, CUDA_R_64F, alg, dBuffer
+		&alpha, mat, vec_vec, &beta, vec_res, CUDA_R_64F, alg, Buffer
 	);
 	cudaEventRecord(stop_calculation_SP,  0);
 
@@ -422,7 +422,7 @@ int main() {
 	cusparseDestroyDnVec(vec_vec);
 	cusparseDestroyDnVec(vec_res);
 	
-	if (dBuffer) cudaFree(dBuffer);
+	if (Buffer) cudaFree(Buffer);
 	
 	
 	
