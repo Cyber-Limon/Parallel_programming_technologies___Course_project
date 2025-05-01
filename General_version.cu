@@ -11,14 +11,14 @@
 
 using namespace std;
 
-__global__ void SpMV(double* values_cu, int* col_indices_cu, int* row_ptr_cu, double* vec_cu, double* res_cu, int M) {
+__global__ void SpMV(double *values_cu, int *col_indices_cu, int *row_ptr_cu, double *vec_cu, double *res_cu, int M) {
 	int row = threadIdx.x + blockIdx.x * blockDim.x;
 
 	if (row < M) {
 		double sum = 0;
 
 		int row_start = row_ptr_cu[row];
-		int row_stop = row_ptr_cu[row + 1];
+		int row_stop  = row_ptr_cu[row + 1];
 
 		for (int j = row_start; j < row_stop; j++)
 			sum += values_cu[j] * vec_cu[col_indices_cu[j]];
@@ -29,7 +29,7 @@ __global__ void SpMV(double* values_cu, int* col_indices_cu, int* row_ptr_cu, do
 
 
 
-void check_results(double* res_cu, double* res_cpp, int M) {
+void check_results(double *res_cu, double *res_cpp, int M) {
 	for (int i = 0; i < M; i++) {
 		double diff = abs(res_cu[i] - res_cpp[i]) / max(abs(res_cu[i]), abs(res_cpp[i]));
 
@@ -44,7 +44,7 @@ void check_results(double* res_cu, double* res_cpp, int M) {
 
 
 
-void save_vector(const string& filename, const double* vec, int size) {
+void save_vector(const string &filename, const double *vec, int size) {
 	ofstream file(filename);
 	if (!file.is_open()) {
 		cerr << "Error: Cannot open file " << filename << endl;
@@ -52,10 +52,10 @@ void save_vector(const string& filename, const double* vec, int size) {
 	}
 
 	file << "%%MatrixMarket matrix array real general\n";
-	file << size << " 1\n"; 
+	file << size << " 1\n";
 
-	for (int i = 0; i < size; ++i) 
-		file << vec[i] << "\n";  
+	for (int i = 0; i < size; ++i)
+		file << vec[i] << "\n";
 
 	file.close();
 	cout << "Vector saved to " << filename << endl;
@@ -66,7 +66,7 @@ void save_vector(const string& filename, const double* vec, int size) {
 int main() {
 
 	// Считывание матрицы //
-	
+
 	const string fpath = "Serena.mtx";
 
 	int M   = 0;
@@ -76,7 +76,7 @@ int main() {
 	int    *I;
 	int    *J;
 	double *val;
-	
+
 	int rcode = mm_read_unsymmetric_sparse(fpath.c_str(), &M, &N, &nnz, &val, &I, &J);
 	cout << "M = " << M << " N = " << N << " nnz = " << nnz << endl;
 
@@ -92,34 +92,37 @@ int main() {
 	for (int i = 0; i < nnz; i++)
 		if (val[i] != 0)
 			count_0++;
-	
-	
+
+
 
 	// Перевод матрицы из формата "COO" в "CSR" // 
 
 	double *values   = new double[count_0];
 	int *col_indices = new int[count_0];
 	int *row_ptr     = new int[M + 1] {0};
-	int count = 0;
+	int *position    = new int[M]     {0};
+
+	for (int i = 0; i < nnz; i++)
+		if (val[i] != 0)
+			row_ptr[I[i] + 1]++;
+
+	for (int i = 0; i < M; i++)
+		row_ptr[i + 1] += row_ptr[i];
 
 	for (int i = 0; i < nnz; i++) {
 		if (val[i] != 0) {
-			values[count]      = val[i];
-			col_indices[count] = J[i];
-			row_ptr[I[i] + 1]++;
-			count++;
+			int row = I[i];
+			int pos = row_ptr[row] + position[row];
+			values[pos]      = val[i];
+			col_indices[pos] = J[i];
+			position[row]++;
 		}
 	}
-	
-	for (int i = 0; i < M; i++) 
-		row_ptr[i + 1] += row_ptr[i];
 
 	if (row_ptr[M] != count_0) {
 		cerr << "Error in filling row_ptr" << endl;
 		return 1;
 	}
-
-	
 
 	cout << "\n\n\nCSR-matrix" << endl;
 
@@ -228,7 +231,7 @@ int main() {
 
 	cudaEventRecord(start_calculation, 0);
 	SpMV <<< (M + block_size - 1) / block_size, block_size >>> (values_cu, col_indices_cu, row_ptr_cu, vec_cu, res_cu, M);
-	cudaEventRecord(stop_calculation,  0);
+	cudaEventRecord(stop_calculation, 0);
 
 
 
@@ -256,11 +259,11 @@ int main() {
 	cudaEventElapsedTime(&time_calculation,  start_calculation,  stop_calculation );
 	cudaEventElapsedTime(&time_transaction2, start_transaction2, stop_transaction2);
 
-	printf("- Time copying from CPU to GPU: %.2f \n",   time_transaction1);
-	printf("- Time calculation:             %.2f \n",   time_calculation );
-	printf("- Time copying from GPU to CPU: %.2f \n",   time_transaction2);
+	printf("- Time copying from CPU to GPU: %.2f \n", time_transaction1);
+	printf("- Time calculation:             %.2f \n", time_calculation );
+	printf("- Time copying from GPU to CPU: %.2f \n", time_transaction2);
 
-	
+
 
 	// Сохранение вектора //
 
@@ -295,19 +298,19 @@ int main() {
 
 	cusparseSpMatDescr_t mat;
 	cusparseDnVecDescr_t vec_vec, vec_res;
-		
+
 	cusparseCreateCsr(
-		&mat,                     
-		M, N, count_0,                 
-		row_ptr_cu,                
-		col_indices_cu,            
-		values_cu,                 
-		CUSPARSE_INDEX_32I,        
+		&mat,
+		M, N, count_0,
+		row_ptr_cu,
+		col_indices_cu,
+		values_cu,
 		CUSPARSE_INDEX_32I,
-		CUSPARSE_INDEX_BASE_ZERO,  
-		CUDA_R_64F                 
+		CUSPARSE_INDEX_32I,
+		CUSPARSE_INDEX_BASE_ZERO,
+		CUDA_R_64F
 	);
-	
+
 	cusparseCreateDnVec(&vec_vec, N, vec_cu, CUDA_R_64F);
 	cusparseCreateDnVec(&vec_res, M, res_cu, CUDA_R_64F);
 
@@ -315,8 +318,8 @@ int main() {
 
 	// Коэффициенты перед матрицей и вектором //
 
-	double alpha = 1.0;  
-	double beta  = 0.0;   
+	double alpha = 1.0;
+	double beta  = 0.0;
 
 
 
@@ -329,7 +332,7 @@ int main() {
 	// Буфер //
 
 	size_t bufferSize = 0;
-	void* Buffer = nullptr;
+	void *Buffer = nullptr;
 
 	cusparseSpMV_bufferSize(
 		handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -375,7 +378,7 @@ int main() {
 	printf("- Time copying from CPU to GPU: %.2f \n", time_transaction1  );
 	printf("- Time calculation:             %.2f \n", time_calculation_SP);
 	printf("- Time copying from GPU to CPU: %.2f \n", time_transaction_SP);
-		
+
 
 
 	// Сохранение вектора //
@@ -402,11 +405,11 @@ int main() {
 
 
 	cudaEventDestroy(start_transaction1);
-	cudaEventDestroy(stop_transaction1 );
+	cudaEventDestroy(stop_transaction1);
 	cudaEventDestroy(start_transaction2);
-	cudaEventDestroy(stop_transaction2 );
-	cudaEventDestroy(start_calculation );
-	cudaEventDestroy(stop_calculation  );
+	cudaEventDestroy(stop_transaction2);
+	cudaEventDestroy(start_calculation);
+	cudaEventDestroy(stop_calculation);
 
 	cudaFree(values_cu);
 	cudaFree(col_indices_cu);
@@ -423,12 +426,12 @@ int main() {
 	cusparseDestroySpMat(mat);
 	cusparseDestroyDnVec(vec_vec);
 	cusparseDestroyDnVec(vec_res);
-	
+
 	if (Buffer) cudaFree(Buffer);
-	
-	
-	
+
+
+
 	cout << "\n\n\n\n";
-	
+
 	return 0;
 }
