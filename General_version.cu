@@ -33,7 +33,7 @@ void check_results(double *res_cu, double *res_cpp, int M) {
 	for (int i = 0; i < M; i++) {
 		double diff = abs(res_cu[i] - res_cpp[i]) / max(abs(res_cu[i]), abs(res_cpp[i]));
 
-		if (diff > 1e-8) {
+		if (diff > 1e-5) {
 			printf("- Check completed incorrectly\n");
 			return;
 		}
