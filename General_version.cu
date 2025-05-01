@@ -100,6 +100,7 @@ int main() {
 	double *values   = new double[count_0];
 	int *col_indices = new int[count_0];
 	int *row_ptr     = new int[M + 1] {0};
+
 	int *position    = new int[M]     {0};
 
 	for (int i = 0; i < nnz; i++)
@@ -292,7 +293,7 @@ int main() {
 	cusparseHandle_t handle;
 	cusparseCreate(&handle);
 
-
+	
 
 	// Дескрипторы матрицы и векторов (единичного и результирующего) //
 
@@ -364,6 +365,8 @@ int main() {
 
 	// Проверка корректности //
 
+	cudaDeviceSynchronize();
+
 	cout << "\n\n\nPARALLEL PROGRAM (cuSPARSE)" << endl;
 
 	check_results(res, res_cpp, M);
@@ -385,7 +388,7 @@ int main() {
 
 	save_vector("Sharigin_MS___Serena___With_cuSPARSE.mtx", res, M);
 
-
+	
 
 
 
@@ -398,6 +401,8 @@ int main() {
 	delete[] values;
 	delete[] col_indices;
 	delete[] row_ptr;
+
+	delete[] position;
 
 	delete[] vec;
 	delete[] res_cpp;
