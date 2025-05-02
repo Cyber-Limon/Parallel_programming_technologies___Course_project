@@ -46,7 +46,9 @@ void save_vector(const string& filename, const double* vec, int size) {
 
 int main() {
 
-	// --- Считывание матрицы --- //
+	// --- Подготовка матрицы --- //
+
+	// Считывание матрицы //
 
 	const string fpath = "Hardesty3.mtx";
 
