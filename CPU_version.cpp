@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void check_results(double *res_par, double* res_seq, int M) {
+void check_results(double *res_par, double *res_seq, int M) {
 	for (int i = 0; i < M; i++) {
 		double diff = abs(res_par[i] - res_seq[i]) / max(abs(res_par[i]), abs(res_seq[i]));
 
