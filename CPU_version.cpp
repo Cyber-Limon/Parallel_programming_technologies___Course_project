@@ -25,7 +25,7 @@ void check_results(double *res_par, double *res_seq, int M) {
 
 
 
-void save_vector(const string& filename, const double *vec, int size) {
+void save_vector(const string &filename, const double *vec, int size) {
 	ofstream file(filename);
 	if (!file.is_open()) {
 		cerr << "Error: Cannot open file " << filename << endl;
