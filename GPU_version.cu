@@ -65,7 +65,7 @@ void save_vector(const string &filename, const double *vec, int size) {
 
 int main() {
 
-	// Считывание матрицы //
+	// --- Считывание матрицы --- //
 
 	const string fpath = "Serena.mtx";
 
