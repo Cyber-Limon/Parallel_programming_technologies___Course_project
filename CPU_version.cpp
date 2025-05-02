@@ -211,7 +211,7 @@ int main() {
 
 	check_results(res_par, res_seq, M);
 
-	save_vector("Altynguzina_AD___Hardesty3___Without_MKL.mtx", res_par, M);
+	save_vector("Sharigin_MS___Hardesty3___Without_MKL.mtx", res_par, M);
 
 
 
@@ -288,7 +288,7 @@ int main() {
 
 	check_results(res_mkl, res_seq, M);
 
-	save_vector("Altynguzina_AD___Hardesty3___With_MKL.mtx", res_mkl, M);
+	save_vector("Sharigin_MS___Hardesty3___With_MKL.mtx", res_mkl, M);
 
 
 
