@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include "mmio.h"
@@ -50,7 +50,7 @@ int main() {
 
 	// Считывание матрицы //
 
-	const string fpath = "Serena.mtx";
+	const string fpath = "Hardesty3.mtx";
 
 	int M   = 0;
 	int N   = 0;
@@ -213,7 +213,7 @@ int main() {
 
 	check_results(res_par, res_seq, M);
 
-	save_vector("Sharigin_MS___Serena___Without_MKL.mtx", res_par, M);
+	save_vector("Altynguzina_AD___Hardesty3___Without_MKL.mtx", res_par, M);
 
 
 
@@ -260,7 +260,7 @@ int main() {
 	// Перемножение матрицы на вектор // 
 
 	start_time = omp_get_wtime();
-	sparse_status_t status = mkl_sparse_d_mv(
+	mkl_sparse_d_mv(
 		SPARSE_OPERATION_NON_TRANSPOSE,
 		alpha,
 		mat,
@@ -290,7 +290,7 @@ int main() {
 
 	check_results(res_mkl, res_seq, M);
 
-	save_vector("Sharigin_MS___Serena___With_MKL.mtx", res_mkl, M);
+	save_vector("Altynguzina_AD___Hardesty3___With_MKL.mtx", res_mkl, M);
 
 
 
