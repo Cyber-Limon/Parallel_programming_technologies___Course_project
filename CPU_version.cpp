@@ -50,7 +50,7 @@ int main() {
 
 	// Считывание матрицы //
 
-	const string fpath = "Hardesty3.mtx";
+	const string fpath = "Serena.mtx";
 
 	int M   = 0;
 	int N   = 0;
@@ -213,7 +213,7 @@ int main() {
 
 	check_results(res_par, res_seq, M);
 
-	save_vector("Altynguzina_AD___Hardesty3___Without_MKL.mtx", res_par, M);
+	save_vector("Sharigin_MS___Serena___Without_MKL.mtx", res_par, M);
 
 
 
@@ -290,7 +290,7 @@ int main() {
 
 	check_results(res_mkl, res_seq, M);
 
-	save_vector("Altynguzina_AD___Hardesty3___With_MKL.mtx", res_mkl, M);
+	save_vector("Sharigin_MS___Serena___With_MKL.mtx", res_mkl, M);
 
 
 
